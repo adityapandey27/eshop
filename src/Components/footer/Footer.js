@@ -1,9 +1,12 @@
 import React from 'react'
-import style from "./Footer.module.scss";
-
+import styles from "./Footer.module.scss";
+const data=new Date();
+const year=data.getFullYear()
 function Footer() {
   return (
-    <div>Footer</div>
+    <div className={styles.footer}>
+      &copy;{year} All Rights Reserved
+    </div>
   )
 }
 
