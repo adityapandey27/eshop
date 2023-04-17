@@ -1,8 +1,13 @@
-import React from "react";
+import {useState} from "react";
 import styles from "./Header.module.scss";
-import { Link } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa";
+import { Link,NavLink} from "react-router-dom";
+import { FaShoppingCart,FaTimes} from "react-icons/fa";
+import { HiOutlineMenuAlt3 } from "react-icons/hi";
 
+import { getAuth, signOut } from "firebase/auth";
+import {auth} from "../../firebase/config"
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 const logo = (
   <div className={styles.logo}>
     <Link to="/">
@@ -22,31 +27,93 @@ const cart = (
     </Link>
   </span>
 );
-// ooooooooooooo
+
+const activeLink=(
+  ({isActive})=>(isActive ? `${styles.active}`:"")
+)
+
+
 function Header() {
+  // for hamburgar
+  const [showMenu,setShowMenu]=useState(false);
+  const navigate=useNavigate()
+  const toogleMenu=()=>{
+    setShowMenu(!showMenu)
+  }
+
+  const hideMenu=()=>{
+    setShowMenu(false);
+  }
+
+  const logoutUser=()=>{
+    signOut(auth).then(() => {
+    toast.success("Logout Successfully")
+    navigate("/login")
+  
+  }).catch((error) => {
+    toast.error(error.message)
+  });
+  
+  }
   return (
     <header>
       <div className={styles.header}>
         {logo}
 
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
+        <nav className={showMenu?`${styles["show-nav"]}`:`${styles['hide-menu']}`}>
+          <div className={showMenu?`${styles["nav-wrapper"]} ${styles["show-nav-wrapper"]}`:`${styles["nav-wrapper"]}`}
+          onClick={hideMenu}
+          >
+          </div>
+
+          <ul onClick={hideMenu}>
+            <li className={styles["logo-mobile"]}>
+              {logo}
+              <FaTimes size={20}
+               color="#fff"
+              onClick={hideMenu}
+              />
             </li>
             <li>
-              <Link to="/contact">Contact Us</Link>
+              <NavLink to="/" 
+              className={activeLink}
+              >Home</NavLink>
+            </li>
+            <li>
+              <NavLink to="/contact"
+              className={activeLink}
+              >Contact Us</NavLink>
             </li>
           </ul>
-          <div className={styles["header-right"]}>
+          <div className={styles["header-right"]}
+          onClick={hideMenu}
+          >
             <span className={styles.links}>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-              <Link to="/order-history">My Orders</Link>
+              <NavLink to="/login"
+              className={activeLink}
+              >Login</NavLink>
+              <NavLink to="/register"
+              className={activeLink}
+              >Register</NavLink>
+              <NavLink to="/order-history"
+              className={activeLink}
+              >My Orders</NavLink>
+              <NavLink to="/"
+              onClick={logoutUser}
+              >Logout</NavLink>
             </span>
             {cart}
           </div>
+        
         </nav>
+
+        {/* for hamburgur */}
+        <div className={styles["menu-icon"]}>
+          { cart }
+          <HiOutlineMenuAlt3 size={28}
+          onClick={toogleMenu}
+          />
+        </div>
       </div>
     </header>
   );
